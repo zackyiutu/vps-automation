@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+# ============================================================
+# abfool-vps - Main CLI Entry Point
+# abfool VPS Orchestration System v2.0.0
+# ============================================================
+
+set -euo pipefail
+export ABFOOL_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+export ABFOOL_VERSION="2.0.0"
+export ABFOOL_CODENAME="Titan"
+
+# ── Source modules ─────────────────────────────────────────
+source "${ABFOOL_ROOT}/src/lib.sh" 2>/dev/null || true
+source "${ABFOOL_ROOT}/src/providers.sh" 2>/dev/null || true
+source "${ABFOOL_ROOT}/src/workers.sh" 2>/dev/null || true
+source "${ABFOOL_ROOT}/src/db.sh" 2>/dev/null || true
+source "${ABFOOL_ROOT}/src/llm.sh" 2>/dev/null || true
+source "${ABFOOL_ROOT}/src/monitor.sh" 2>/dev/null || true
+source "${ABFOOL_ROOT}/src/storage.sh" 2>/dev/null || true
+source "${ABFOOL_ROOT}/src/tunnel.sh" 2>/dev/null || true
+
+# ── Banner ─────────────────────────────────────────────────
+show_banner() {
+    cat << 'BANNER'
+
+     _   _          _____ _____  ______   __________
+    | | | |   /\   |  __ \  _  ||  ___\ \ / /___  /
+    | |_| |  /  \  | |  \/ | | || |_   \ V /   / /
+    |  _  | / /\ \ | | __| | | ||  _|   \ /   / /
+    | | | |/ ____ \| |_\ \ \_/ /| |     | | ./ /___
+    \_| |_/_/    \_\____/ \___/ \_|     \_/ \_____/
+
+    VPS Orchestration System v2.0.0 "Titan"
+    Website: https://abfool.web.id
+
+BANNER
+}
+
+# ── Usage ──────────────────────────────────────────────────
+usage() {
+    show_banner
+    cat << 'EOF'
+Usage: abfool-vps <command> [options]
+
+COMMANDS:
+  setup                    Interactive setup wizard
+  create <provider> [name] Create new VPS instance
+  list [provider]          List all instances
+  ssh <provider> <name>    SSH to instance
+  destroy <provider> <name> Destroy instance
+
+  providers                List supported providers
+  provider setup <name>    Configure a provider
+
+  workers                  List active workers
+  worker run <task>        Run LLM-powered worker task
+
+  vault                    Credential manager
+  vault add <provider>     Add credentials
+  vault list               List stored credentials
+
+  monitor                  Health monitoring
+  monitor start            Start watchdog daemon
+  monitor scan             Run health scan
+  monitor heal             Auto-heal instances
+
+  storage                  Cloud storage
+  storage mount [path]     Mount Google Drive
+  storage unmount          Unmount Google Drive
+
+  tunnel                   Network tunnels
+  tunnel quick [port]      Cloudflare quick tunnel
+  tunnel tailscale         Tailscale VPN
+
+  llm                      LLM configuration
+  llm setup                Configure LLM provider
+  llm status               Check LLM connection
+
+  dashboard                Launch web dashboard
+  version                  Show version
+  help                     Show this help
+
+EXAMPLES:
+  abfool-vps setup                          # First-time setup
+  abfool-vps create flyio my-server         # Create Fly.io VPS
+  abfool-vps create railway my-app          # Create Railway app
+  abfool-vps worker run "deploy nginx"      # LLM-powered deploy
+  abfool-vps vault add flyio                # Store Fly.io token
+  abfool-vps monitor start                  # Start monitoring
+
+WEBSITE: https://abfool.web.id
+DOCS:    https://abfool.web.id/docs
+GITHUB:  https://github.com/zackyiutu/vps-automation
+EOF
+}
+
+# ── Command Router ─────────────────────────────────────────
+cmd="${1:-help}"
+shift 2>/dev/null || true
+
+case "$cmd" in
+    setup)      run_setup_wizard "$@" ;;
+    create)     provider_create "$@" ;;
+    list)       provider_list "$@" ;;
+    ssh)        provider_ssh "$@" ;;
+    destroy)    provider_destroy "$@" ;;
+    providers)  provider_list_all ;;
+    provider)   provider_config "$@" ;;
+    workers)    worker_list "$@" ;;
+    worker)     worker_run "$@" ;;
+    vault)      vault_manage "$@" ;;
+    monitor)    monitor_cmd "$@" ;;
+    storage)    storage_cmd "$@" ;;
+    tunnel)     tunnel_cmd "$@" ;;
+    llm)        llm_cmd "$@" ;;
+    dashboard)  launch_dashboard "$@" ;;
+    version)    echo "abfool VPS Orchestration v${ABFOOL_VERSION} \"${ABFOOL_CODENAME}\"" ;;
+    help|-h|--help) show_banner; usage ;;
+    *)          echo "Unknown command: $cmd"; usage; exit 1 ;;
+esac

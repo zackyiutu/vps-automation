@@ -1,0 +1,6 @@
+.state/
+logs/
+data/vault.db
+config/abfool.yaml
+node_modules/
+.DS_Store
