@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>abfool VPS Orchestration</title>
+    <meta name="description" content="Open-source autonomous VPS provisioning & management. 15+ free providers.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <script type="importmap">
+    {
+        "imports": {
+            "react": "https://esm.sh/react@18.3.1",
+            "react/": "https://esm.sh/react@18.3.1/",
+            "react-dom/client": "https://esm.sh/react-dom@18.3.1/client?deps=react@18.3.1",
+            "react-router-dom": "https://esm.sh/react-router-dom@6.26.0?deps=react@18.3.1,react-dom@18.3.1",
+            "recharts": "https://esm.sh/recharts@2.12.7?deps=react@18.3.1,react-dom@18.3.1",
+            "lucide-react": "https://esm.sh/lucide-react@0.441.0?deps=react@18.3.1",
+            "clsx": "https://esm.sh/clsx@2.1.1"
+        }
+    }
+    </script>
+
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        :root{--font-sans:'Inter',system-ui,sans-serif;--font-mono:'JetBrains Mono',monospace;--radius:0.75rem;--transition:200ms cubic-bezier(.4,0,.2,1)}
+        .dark{--bg:#09090b;--bg-subtle:#18181b;--bg-muted:#27272a;--surface:#18181b;--surface-hover:#27272a;--border:#27272a;--border-hover:#3f3f46;--text:#fafafa;--text-secondary:#a1a1aa;--text-muted:#71717a;--accent:#3b82f6;--accent-hover:#60a5fa;--accent-soft:#1e3a5f;--success:#22c55e;--success-soft:#14532d;--warning:#eab308;--warning-soft:#713f12;--danger:#ef4444;--danger-soft:#7f1d1d;--shadow:0 1px 3px rgba(0,0,0,.3);--shadow-lg:0 10px 15px rgba(0,0,0,.3)}
+        .light{--bg:#ffffff;--bg-subtle:#f4f4f5;--bg-muted:#e4e4e7;--surface:#ffffff;--surface-hover:#f4f4f5;--border:#e4e4e7;--border-hover:#d4d4d8;--text:#09090b;--text-secondary:#71717a;--text-muted:#a1a1aa;--accent:#2563eb;--accent-hover:#1d4ed8;--accent-soft:#dbeafe;--success:#16a34a;--success-soft:#dcfce7;--warning:#ca8a04;--warning-soft:#fef9c3;--danger:#dc2626;--danger-soft:#fee2e2;--shadow:0 1px 3px rgba(0,0,0,.08);--shadow-lg:0 10px 15px rgba(0,0,0,.08)}
+        html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+        body{font-family:var(--font-sans);background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;transition:background var(--transition),color var(--transition)}
+        a{color:inherit;text-decoration:none}button{cursor:pointer;font-family:inherit}code,pre{font-family:var(--font-mono)}
+        ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border-hover);border-radius:3px}
+        .container{max-width:1280px;margin:0 auto;padding:0 1.5rem}
+        .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;transition:all var(--transition)}
+        .card:hover{border-color:var(--border-hover);box-shadow:var(--shadow)}
+        .btn{display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.625rem 1.25rem;border-radius:var(--radius);font-size:0.875rem;font-weight:600;border:none;transition:all var(--transition);white-space:nowrap}
+        .btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent-hover);transform:translateY(-1px);box-shadow:var(--shadow-lg)}
+        .btn-secondary{background:var(--surface);color:var(--text);border:1px solid var(--border)}.btn-secondary:hover{background:var(--surface-hover);border-color:var(--border-hover)}
+        .btn-ghost{background:transparent;color:var(--text-secondary)}.btn-ghost:hover{background:var(--surface-hover);color:var(--text)}
+        .btn-danger{background:var(--danger);color:#fff}.btn-sm{padding:0.375rem 0.75rem;font-size:0.8125rem}.btn-lg{padding:0.875rem 1.75rem;font-size:1rem}
+        .badge{display:inline-flex;align-items:center;gap:0.375rem;padding:0.25rem 0.75rem;border-radius:9999px;font-size:0.75rem;font-weight:600}
+        .badge-success{background:var(--success-soft);color:var(--success)}.badge-warning{background:var(--warning-soft);color:var(--warning)}.badge-danger{background:var(--danger-soft);color:var(--danger)}.badge-accent{background:var(--accent-soft);color:var(--accent)}
+        .input{width:100%;padding:0.625rem 0.875rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:0.875rem;transition:border-color var(--transition),box-shadow var(--transition);font-family:var(--font-sans)}.input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+        .stat-value{font-size:2rem;font-weight:800;letter-spacing:-0.02em;line-height:1}
+        .section-title{font-size:clamp(2rem,5vw,3rem);font-weight:800;letter-spacing:-0.03em;line-height:1.1}
+        .gradient-text{background:linear-gradient(135deg,var(--accent),#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+        .anim-fade{animation:fadeIn .5s ease-out forwards}.anim-slide{animation:slideUp .6s ease-out forwards}
+        .s1{animation-delay:.1s;opacity:0}.s2{animation-delay:.2s;opacity:0}.s3{animation-delay:.3s;opacity:0}.s4{animation-delay:.4s;opacity:0}
+        @media(max-width:768px){.hide-mobile{display:none!important}}
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="module">
+import React,{useState,useEffect,useCallback,useContext,createContext} from 'react';
+import {createRoot} from 'react-dom/client';
+import {BrowserRouter,Routes,Route,Link,useLocation} from 'react-router-dom';
+import{LayoutDashboard,Server,Settings,FileText,Home,Sun,Moon,Menu,X,Zap,Shield,Activity,Cpu,HardDrive,Clock,CheckCircle2,AlertTriangle,XCircle,RefreshCw,Terminal,Trash2,ExternalLink,ArrowRight,GitBranch,Gauge,Globe,Database,Rocket,Save,Eye,EyeOff,Bell,Book,Wrench,BarChart3,Wifi}from'lucide-react';
+
+// ── Theme ──
+const ThemeCtx=createContext({theme:'dark',toggle:()=>{}});
+function ThemeProvider({children}){
+    const[t,setT]=useState(()=>localStorage.getItem('theme')||'dark');
+    useEffect(()=>{document.documentElement.className=t;localStorage.setItem('theme',t)},[t]);
+    return React.createElement(ThemeCtx.Provider,{value:{theme:t,toggle:()=>setT(p=>p==='dark'?'light':'dark')}},children);
+}
+const useTheme=()=>useContext(ThemeCtx);
+
+// ── Hooks ──
+function useCountUp(target,dur=2000){
+    const[c,setC]=useState(0);
+    useEffect(()=>{if(!target)return;const s=performance.now();const a=n=>{const p=Math.min((n-s)/dur,1);setC(Math.floor((1-Math.pow(1-p,3))*target));if(p<1)requestAnimationFrame(a)};requestAnimationFrame(a)},[target,dur]);
+    return c;
+}
+
+// ── Layout ──
+const navItems=[
+    {path:'/',label:'Home',icon:Home},
+    {path:'/dashboard',label:'Dashboard',icon:LayoutDashboard},
+    {path:'/providers',label:'Providers',icon:Server},
+    {path:'/instances',label:'Instances',icon:Activity},
+    {path:'/settings',label:'Settings',icon:Settings},
+    {path:'/docs',label:'Docs',icon:FileText},
+];
+
+function Layout(){
+    const{theme,toggle}=useTheme();
+    const loc=useLocation();
+    const[mob,setMob]=useState(false);
+    return React.createElement('div',{style:{minHeight:'100vh',display:'flex',flexDirection:'column'}},
+        // Navbar
+        React.createElement('nav',{style:{position:'sticky',top:0,zIndex:50,background:theme==='dark'?'rgba(9,9,11,.8)':'rgba(255,255,255,.8)',backdropFilter:'blur(16px)',borderBottom:'1px solid var(--border)'}},
+            React.createElement('div',{className:'container',style:{display:'flex',alignItems:'center',justifyContent:'space-between',height:'4rem'}},
+                // Logo
+                React.createElement(Link,{to:'/',style:{display:'flex',alignItems:'center',gap:'.5rem',fontWeight:800,fontSize:'1.125rem'}},React.createElement(Zap,{size:24,style:{color:'var(--accent)'}}),React.createElement('span',null,'abfool',React.createElement('span',{style:{color:'var(--accent)'}},'VPS'))),
+                // Desktop nav
+                React.createElement('div',{className:'hide-mobile',style:{display:'flex',alignItems:'center',gap:'.25rem'}},navItems.map(i=>{const Icon=i.icon;const active=loc.pathname===i.path;return React.createElement(Link,{key:i.path,to:i.path,style:{display:'flex',alignItems:'center',gap:'.5rem',padding:'.5rem .875rem',borderRadius:'var(--radius)',fontSize:'.875rem',fontWeight:active?600:500,color:active?'var(--text)':'var(--text-secondary)',background:active?'var(--surface-hover)':'transparent',transition:'all var(--transition)'}},React.createElement(Icon,{size:16}),i.label)})),
+                // Right
+                React.createElement('div',{style:{display:'flex',alignItems:'center',gap:'.5rem'}},
+                    React.createElement('button',{onClick:toggle,className:'btn btn-ghost btn-sm',title:'Toggle theme'},theme==='dark'?React.createElement(Sun,{size:16}):React.createElement(Moon,{size:16})),
+                    React.createElement('a',{href:'https://github.com/zackyiutu/vps-automation',target:'_blank',className:'btn btn-ghost btn-sm'},React.createElement(Shield,{size:16})),
+                    React.createElement('button',{onClick:()=>setMob(!mob),className:'btn btn-ghost btn-sm',style:{display:'none'},id:'mob-btn'},mob?React.createElement(X,{size:18}):React.createElement(Menu,{size:18}))
+                )
+            ),
+            // Mobile
+            mob&&React.createElement('div',{className:'container',style:{borderTop:'1px solid var(--border)',padding:'.5rem 0'}},navItems.map(i=>{const Icon=i.icon;return React.createElement(Link,{key:i.path,to:i.path,onClick:()=>setMob(false),style:{display:'flex',alignItems:'center',gap:'.75rem',padding:'.75rem 0',color:loc.pathname===i.path?'var(--text)':'var(--text-secondary)',fontWeight:loc.pathname===i.path?600:400,borderBottom:'1px solid var(--border)'}},React.createElement(Icon,{size:18}),i.label)}))
+        ),
+        // Main
+        React.createElement('main',{style:{flex:1}},React.createElement(Routes,null,
+            React.createElement(Route,{path:'/',element:React.createElement(HomePage)}),
+            React.createElement(Route,{path:'/dashboard',element:React.createElement(DashboardPage)}),
+            React.createElement(Route,{path:'/providers',element:React.createElement(ProvidersPage)}),
+            React.createElement(Route,{path:'/instances',element:React.createElement(InstancesPage)}),
+            React.createElement(Route,{path:'/settings',element:React.createElement(SettingsPage)}),
+            React.createElement(Route,{path:'/docs',element:React.createElement(DocsPage)})
+        )),
+        // Footer
+        React.createElement('footer',{style:{borderTop:'1px solid var(--border)',padding:'2rem 0'}},React.createElement('div',{className:'container',style:{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:'1rem'}},React.createElement('div',{style:{display:'flex',alignItems:'center',gap:'.5rem',color:'var(--text-muted)',fontSize:'.8125rem'}},React.createElement(Zap,{size:14,style:{color:'var(--accent)'}}),React.createElement('span',null,'© 2026 abfool VPS Orchestration. MIT License.')),React.createElement('div',{style:{display:'flex',gap:'1.5rem'}},React.createElement('a',{href:'https://github.com/zackyiutu/vps-automation',style:{color:'var(--text-muted)',fontSize:'.8125rem'}},'GitHub'),React.createElement(Link,{to:'/docs',style:{color:'var(--text-muted)',fontSize:'.8125rem'}},'Docs'))))
+    );
+}
+
+// ── StatCard ──
+function StatCard({value,label,suffix='',prefix=''}){const c=useCountUp(value);return React.createElement('div',{style:{textAlign:'center'}},React.createElement('div',{className:'stat-value gradient-text'},prefix,c,suffix),React.createElement('div',{style:{fontSize:'.75rem',color:'var(--text-muted)',textTransform:'uppercase',letterSpacing:'.1em',marginTop:'.25rem'}},label))}
+
+// ── HomePage ──
+function HomePage(){
+    const features=[
+        {icon:Rocket,title:'Auto-Provisioning',desc:'One command creates a VPS with SSH, IP, and credentials stored.'},
+        {icon:Cpu,title:'15+ Free Providers',desc:'Fly.io, Codespaces, Railway, Koyeb, Vercel. No credit card.'},
+        {icon:Activity,title:'Health Monitoring',desc:'24/7 watchdog with auto-heal. Dead instances restart automatically.'},
+        {icon:Database,title:'Credential Vault',desc:'Encrypted SQLite storage for all provider tokens and credentials.'},
+        {icon:Gauge,title:'LLM Workers',desc:'AI-powered provisioning with OpenAI, OpenRouter, or Ollama.'},
+        {icon:Globe,title:'Tunnels & VPN',desc:'Cloudflare Tunnel, Tailscale mesh, SSH reverse tunnels.'},
+        {icon:HardDrive,title:'5TB Cloud Storage',desc:'Mount Google Drive as local filesystem via Rclone.'},
+        {icon:Terminal,title:'Interactive CLI',desc:'Beautiful terminal UI. Works on Termux and PC.'},
+    ];
+    const providers=[
+        {name:'Fly.io',icon:'🚀',specs:'3× VM, 256MB RAM each',badge:'No CC'},
+        {name:'GitHub Codespaces',icon:'💻',specs:'2 cores, 8GB RAM, 120h/mo',badge:'Free'},
+        {name:'Railway',icon:'🚂',specs:'512MB RAM, 1GB disk',badge:'No CC'},
+        {name:'Koyeb',icon:'⚡',specs:'2× nano, 512MB each',badge:'Free'},
+        {name:'Render',icon:'🌐',specs:'512MB RAM, auto-deploy',badge:'Free'},
+        {name:'HuggingFace',icon:'🤗',specs:'2 vCPU, 16GB RAM',badge:'Free'},
+        {name:'Deno Deploy',icon:'🦕',specs:'Serverless, 100K req/day',badge:'Free'},
+        {name:'Cloudflare',icon:'☁️',specs:'Workers + Pages, unlimited',badge:'Free'},
+    ];
+    return React.createElement('div',null,
+        // Hero
+        React.createElement('section',{style:{padding:'6rem 0 4rem',textAlign:'center',position:'relative',overflow:'hidden'}},
+            React.createElement('div',{style:{position:'absolute',inset:0,background:'radial-gradient(ellipse at 50% 0%,var(--accent-soft) 0%,transparent 60%)',pointerEvents:'none'}}),
+            React.createElement('div',{className:'container',style:{position:'relative'}},
+                React.createElement('span',{className:'badge badge-accent anim-fade',style:{marginBottom:'1.5rem',display:'inline-flex'}},React.createElement(Zap,{size:12}),' v2.0.0 — Open Source'),
+                React.createElement('h1',{className:'section-title anim-slide s1',style:{marginBottom:'1.5rem',maxWidth:'48rem',margin:'0 auto 1.5rem'}},'Autonomous VPS',React.createElement('br'),React.createElement('span',{className:'gradient-text'},'Orchestration')),
+                React.createElement('p',{className:'anim-slide s2',style:{fontSize:'1.125rem',color:'var(--text-secondary)',maxWidth:'36rem',margin:'0 auto 2.5rem',lineHeight:1.7}},'Provision, manage & monitor free VPS from 15+ providers. No credit card. Works on Termux and PC.'),
+                React.createElement('div',{className:'anim-slide s3',style:{display:'flex',gap:'.75rem',justifyContent:'center',flexWrap:'wrap',marginBottom:'4rem'}},React.createElement(Link,{to:'/dashboard',className:'btn btn-primary btn-lg'},React.createElement(Rocket,{size:18}),' Open Dashboard'),React.createElement('a',{href:'https://github.com/zackyiutu/vps-automation',target:'_blank',className:'btn btn-secondary btn-lg'},React.createElement(GitBranch,{size:18}),' View on GitHub')),
+                React.createElement('div',{className:'anim-slide s4',style:{display:'flex',gap:'3rem',justifyContent:'center',flexWrap:'wrap'}},React.createElement(StatCard,{value:10,suffix:'+',label:'CPU Cores'}),React.createElement(StatCard,{value:35,suffix:'GB',label:'RAM'}),React.createElement(StatCard,{value:5,suffix:'TB',label:'Storage'}),React.createElement(StatCard,{value:0,prefix:'$',suffix:'',label:'Cost'}))
+            )
+        ),
+        // Features
+        React.createElement('section',{style:{padding:'4rem 0'}},React.createElement('div',{className:'container'},React.createElement('div',{style:{textAlign:'center',marginBottom:'3rem'}},React.createElement('span',{className:'badge badge-accent',style:{marginBottom:'.75rem'}},'Features'),React.createElement('h2',{className:'section-title'},'Everything You Need')),React.createElement('div',{style:{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:'1rem'}},features.map((f,i)=>React.createElement('div',{key:i,className:'card',style:{display:'flex',flexDirection:'column',gap:'.75rem'}},React.createElement('div',{style:{width:'2.5rem',height:'2.5rem',borderRadius:'.5rem',background:'var(--accent-soft)',display:'flex',alignItems:'center',justifyContent:'center'}},React.createElement(f.icon,{size:18,style:{color:'var(--accent)'}})),React.createElement('h3',{style:{fontWeight:700}},f.title),React.createElement('p',{style:{fontSize:'.875rem',color:'var(--text-secondary)',lineHeight:1.6}},f.desc)))))),
+        // Providers
+        React.createElement('section',{style:{padding:'4rem 0',background:'var(--bg-subtle)'}},React.createElement('div',{className:'container'},React.createElement('div',{style:{textAlign:'center',marginBottom:'3rem'}},React.createElement('span',{className:'badge badge-accent',style:{marginBottom:'.75rem'}},'Providers'),React.createElement('h2',{className:'section-title'},'Free Cloud Providers'),React.createElement('p',{style:{color:'var(--text-secondary)',marginTop:'.5rem'}},'No credit card required')),React.createElement('div',{style:{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:'1rem'}},providers.map((p,i)=>React.createElement('div',{key:i,className:'card',style:{position:'relative',overflow:'hidden'}},React.createElement('div',{style:{position:'absolute',top:0,left:0,right:0,height:'3px',background:'linear-gradient(90deg,var(--accent),#a855f7)'}}),React.createElement('div',{style:{display:'flex',alignItems:'center',gap:'.75rem',marginBottom:'1rem'}},React.createElement('span',{style:{fontSize:'1.5rem'}},p.icon),React.createElement('h3',{style:{fontWeight:700,flex:1}},p.name),React.createElement('span',{className:'badge badge-success'},p.badge)),React.createElement('p',{style:{fontSize:'.8125rem',color:'var(--text-secondary)'}},p.specs)))))),
+        // Install
+        React.createElement('section',{style:{padding:'4rem 0'}},React.createElement('div',{className:'container',style:{maxWidth:'40rem'}},React.createElement('div',{style:{textAlign:'center',marginBottom:'2rem'}},React.createElement('span',{className:'badge badge-accent',style:{marginBottom:'.75rem'}},'Install'),React.createElement('h2',{className:'section-title'},'Get Started')),React.createElement('div',{className:'card',style:{fontFamily:'var(--font-mono)',fontSize:'.875rem',lineHeight:2}},React.createElement('div',{style:{color:'var(--text-muted)'}},'# Clone & install'),React.createElement('div',null,React.createElement('span',{style:{color:'var(--accent)'}},'$'),' git clone https://github.com/zackyiutu/vps-automation.git'),React.createElement('div',null,'$ cd vps-automation && bash scripts/install.sh'),React.createElement('div',{style:{color:'var(--text-muted)',marginTop:'.5rem'}},'# Setup & create VPS'),React.createElement('div',null,React.createElement('span',{style:{color:'var(--accent)'}},'$'),' abfool-vps setup'),React.createElement('div',null,'$ abfool-vps create flyio my-server'),React.createElement('div',{style:{color:'var(--success)',marginTop:'.5rem'}},'✓ Instance ready: ssh vps@1.2.3.4')),React.createElement('div',{style:{textAlign:'center',marginTop:'2rem'}},React.createElement(Link,{to:'/docs',className:'btn btn-primary'},'Read Documentation ',React.createElement(ArrowRight,{size:16})))))
+    );
+}
+
+// ── DashboardPage ──
+function DashboardPage(){
+    const cores=useCountUp(10),ram=useCountUp(35);
+    const instances=[
+        {name:'flyio-prod-1',status:'active',ip:'137.66.12.45',cpu:'1 vCPU',ram:'256MB'},
+        {name:'codespace-dev',status:'active',ip:'github/codespace',cpu:'2 cores',ram:'8GB'},
+        {name:'railway-api',status:'active',ip:'api.railway.app',cpu:'0.5 vCPU',ram:'512MB'},
+        {name:'koyeb-worker',status:'provisioning',ip:'pending...',cpu:'1 vCPU',ram:'512MB'},
+        {name:'render-cron',status:'stopped',ip:'192.168.1.100',cpu:'0.5 vCPU',ram:'512MB'},
+    ];
+    const logs=[
+        {t:'18:32:01',l:'INFO',m:'Health check: 4/5 instances healthy'},
+        {t:'18:31:45',l:'WARN',m:'render-cron: SSH connection timeout'},
+        {t:'18:30:12',l:'INFO',m:'flyio-prod-1: CPU 12%, RAM 180MB/256MB'},
+        {t:'18:29:58',l:'INFO',m:'Auto-heal triggered for render-cron'},
+        {t:'18:28:30',l:'OK',m:'koyeb-worker: provisioning in progress'},
+        {t:'18:27:15',l:'INFO',m:'Backup synced to Google Drive (2.3GB)'},
+    ];
+    const sc={INFO:'var(--accent)',WARN:'var(--warning)',OK:'var(--success)',ERROR:'var(--danger)'};
+    return React.createElement('div',{className:'container',style:{padding:'2rem 1.5rem'}},
+        React.createElement('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'2rem'}},React.createElement('div',null,React.createElement('h1',{style:{fontSize:'1.75rem',fontWeight:800}},'Dashboard'),React.createElement('p',{style:{color:'var(--text-secondary)',fontSize:'.875rem'}},'Real-time monitoring')),React.createElement('button',{className:'btn btn-secondary btn-sm'},React.createElement(RefreshCw,{size:14}),' Refresh')),
+        // Stats
+        React.createElement('div',{style:{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:'1rem',marginBottom:'2rem'}},[{icon:Cpu,label:'Total CPU',val:`${cores} cores`,c:'var(--accent)'},{icon:HardDrive,label:'Total RAM',val:`${ram}GB`,c:'#a855f7'},{icon:Server,label:'Active',val:'4 / 5',c:'var(--success)'},{icon:Clock,label:'Uptime',val:'99.8%',c:'var(--warning)'}].map((s,i)=>React.createElement('div',{key:i,className:'card',style:{display:'flex',alignItems:'center',gap:'1rem'}},React.createElement('div',{style:{width:'2.5rem',height:'2.5rem',borderRadius:'.5rem',background:`${s.c}20`,display:'flex',alignItems:'center',justifyContent:'center'}},React.createElement(s.icon,{size:18,style:{color:s.c}})),React.createElement('div',null,React.createElement('div',{style:{fontSize:'.75rem',color:'var(--text-muted)'}},s.label),React.createElement('div',{style:{fontSize:'1.25rem',fontWeight:700,fontFamily:'var(--font-mono)'}},s.val))))),
+        // Health
+        React.createElement('div',{className:'card',style:{marginBottom:'2rem'}},React.createElement('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'1rem'}},React.createElement('h3',{style:{fontWeight:700,display:'flex',alignItems:'center',gap:'.5rem'}},React.createElement(Activity,{size:18,style:{color:'var(--accent)'}}),' Health Overview'),React.createElement('span',{className:'badge badge-success'},React.createElement(CheckCircle2,{size:12}),' 4/5 Healthy')),React.createElement('div',{style:{display:'flex',gap:'.25rem',height:'.5rem',borderRadius:'9999px',overflow:'hidden'}},React.createElement('div',{style:{flex:4,background:'var(--success)',borderRadius:'9999px'}}),React.createElement('div',{style:{flex:1,background:'var(--danger)',borderRadius:'9999px'}})),React.createElement('div',{style:{display:'flex',justifyContent:'space-between',marginTop:'.5rem',fontSize:'.75rem',color:'var(--text-muted)'}},React.createElement('span',null,'4 healthy'),React.createElement('span',null,'1 stopped'))),
+        // Instances
+        React.createElement('div',{className:'card',style:{marginBottom:'2rem',padding:0,overflow:'hidden'}},React.createElement('div',{style:{padding:'1rem',borderBottom:'1px solid var(--border)'}},React.createElement('h3',{style:{fontWeight:700,display:'flex',alignItems:'center',gap:'.5rem'}},React.createElement(Server,{size:18,style:{color:'var(--accent)'}}),' Instances')),React.createElement('div',{style:{display:'grid',gridTemplateColumns:'2fr 1fr 2fr 1fr 1fr',padding:'.5rem 1rem',fontSize:'.75rem',color:'var(--text-muted)',textTransform:'uppercase',letterSpacing:'.05em',borderBottom:'1px solid var(--border)'}},'Name','Status','IP','CPU','RAM'),instances.map((inst,i)=>{const s={active:{c:'var(--success)',icon:CheckCircle2},provisioning:{c:'var(--warning)',icon:AlertTriangle},stopped:{c:'var(--danger)',icon:XCircle}}[inst.status];return React.createElement('div',{key:i,style:{display:'grid',gridTemplateColumns:'2fr 1fr 2fr 1fr 1fr',alignItems:'center',padding:'.875rem 1rem',borderBottom:'1px solid var(--border)',fontSize:'.875rem'}},React.createElement('div',{style:{display:'flex',alignItems:'center',gap:'.5rem',fontWeight:600}},React.createElement(Server,{size:16,style:{color:'var(--accent)'}}),inst.name),React.createElement('span',{className:'badge',style:{background:`${s.c}20`,color:s.c}},React.createElement(s.icon,{size:12}),inst.status),React.createElement('span',{style:{fontFamily:'var(--font-mono)',color:'var(--text-secondary)',fontSize:'.8125rem'}},inst.ip),React.createElement('span',{style:{fontFamily:'var(--font-mono)'}},inst.cpu),React.createElement('span',{style:{fontFamily:'var(--font-mono)'}},inst.ram))})),
+        // Logs
+        React.createElement('div',{className:'card'},React.createElement('h3',{style:{fontWeight:700,marginBottom:'1rem',display:'flex',alignItems:'center',gap:'.5rem'}},React.createElement(Wifi,{size:18,style:{color:'var(--accent)'}}),' Live Logs'),React.createElement('div',{style:{fontFamily:'var(--font-mono)',fontSize:'.8125rem',lineHeight:2,background:'var(--bg)',borderRadius:'var(--radius)',padding:'1rem',maxHeight:'16rem',overflowY:'auto'}},logs.map((l,i)=>React.createElement('div',{key:i},React.createElement('span',{style:{color:'var(--text-muted)'}},l.t),' ',React.createElement('span',{style:{color:sc[l.l]||'var(--text-secondary)',fontWeight:600}},`[${l.l}]`),' ',React.createElement('span',{style:{color:'var(--text-secondary)'}},l.m)))))
+    );
+}
+
+// ── ProvidersPage ──
+function ProvidersPage(){
+    const ps=[
+        {name:'Fly.io',url:'https://fly.io',specs:'3× VM, 256MB RAM',status:'configured',icon:'🚀'},
+        {name:'GitHub Codespaces',url:'https://github.com/features/codespaces',specs:'2 cores, 8GB RAM',status:'active',icon:'💻'},
+        {name:'Railway',url:'https://railway.app',specs:'512MB RAM, 1GB disk',status:'inactive',icon:'🚂'},
+        {name:'Koyeb',url:'https://koyeb.com',specs:'2× nano, 512MB',status:'inactive',icon:'⚡'},
+        {name:'Render',url:'https://render.com',specs:'512MB RAM',status:'inactive',icon:'🌐'},
+        {name:'HuggingFace',url:'https://huggingface.co',specs:'2 vCPU, 16GB RAM',status:'inactive',icon:'🤗'},
+        {name:'Deno Deploy',url:'https://deno.com/deploy',specs:'Serverless',status:'inactive',icon:'🦕'},
+        {name:'Vercel',url:'https://vercel.com',specs:'Serverless, 100GB BW',status:'inactive',icon:'▲'},
+        {name:'Netlify',url:'https://netlify.com',specs:'100GB BW',status:'inactive',icon:'◆'},
+        {name:'IBM Cloud',url:'https://cloud.ibm.com',specs:'Lite tier, 256MB',status:'inactive',icon:'🔷'},
+        {name:'Northflank',url:'https://northflank.com',specs:'2GB RAM, 2 vCPU',status:'inactive',icon:'🏗️'},
+        {name:'Cyclic',url:'https://cyclic.sh',specs:'Serverless, 512MB',status:'inactive',icon:'🔄'},
+        {name:'CF Workers',url:'https://workers.cloudflare.com',specs:'10ms CPU, 128MB',status:'active',icon:'☁️'},
+        {name:'CF Pages',url:'https://pages.cloudflare.com',specs:'Unlimited BW',status:'active',icon:'📄'},
+        {name:'Gitpod',url:'https://gitpod.io',specs:'4 cores, 8GB RAM',status:'inactive',icon:'🦊'},
+    ];
+    return React.createElement('div',{className:'container',style:{padding:'2rem 1.5rem'}},React.createElement('div',{style:{marginBottom:'2rem'}},React.createElement('h1',{style:{fontSize:'1.75rem',fontWeight:800}},'Providers'),React.createElement('p',{style:{color:'var(--text-secondary)',fontSize:'.875rem'}},'15 free cloud providers. No credit card required.')),React.createElement('div',{style:{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))',gap:'1rem'}},ps.map((p,i)=>React.createElement('div',{key:i,className:'card',style:{position:'relative',overflow:'hidden'}},React.createElement('div',{style:{position:'absolute',top:0,left:0,right:0,height:'3px',background:p.status==='active'?'var(--success)':p.status==='configured'?'var(--accent)':'var(--border)'}}),React.createElement('div',{style:{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:'.75rem'}},React.createElement('div',{style:{display:'flex',alignItems:'center',gap:'.75rem'}},React.createElement('span',{style:{fontSize:'1.5rem'}},p.icon),React.createElement('div',null,React.createElement('h3',{style:{fontWeight:700}},p.name),React.createElement('p',{style:{fontSize:'.8125rem',color:'var(--text-secondary)'}},p.specs))),React.createElement('span',{className:'badge '+(p.status==='active'?'badge-success':p.status==='configured'?'badge-accent':''),style:p.status==='inactive'?{background:'var(--bg-muted)',color:'var(--text-muted)'}:{}},p.status)),React.createElement('a',{href:p.url,target:'_blank',rel:'noreferrer',style:{display:'flex',alignItems:'center',gap:'.25rem',fontSize:'.8125rem',color:'var(--accent)'}},p.url,' ',React.createElement(ExternalLink,{size:12}))}))));
+}
+
+// ── InstancesPage ──
+function InstancesPage(){
+    const instances=[
+        {name:'flyio-prod-1',provider:'Fly.io',status:'active',ip:'137.66.12.45',port:22,user:'vps',pass:'vps123',cpu:'1 vCPU',ram:'256MB',uptime:'14d 6h'},
+        {name:'codespace-dev',provider:'Codespaces',status:'active',ip:'github/codespace',port:22,user:'codespace',pass:'',cpu:'2 cores',ram:'8GB',uptime:'3d 12h'},
+        {name:'railway-api',provider:'Railway',status:'active',ip:'api.railway.app',port:443,user:'railway',pass:'',cpu:'0.5 vCPU',ram:'512MB',uptime:'7d 2h'},
+        {name:'koyeb-worker',provider:'Koyeb',status:'provisioning',ip:'pending...',port:443,user:'koyeb',pass:'',cpu:'1 vCPU',ram:'512MB',uptime:'-'},
+        {name:'render-cron',provider:'Render',status:'stopped',ip:'192.168.1.100',port:22,user:'root',pass:'***',cpu:'0.5 vCPU',ram:'512MB',uptime:'0d 0h'},
+    ];
+    const sc={active:{c:'var(--success)',icon:CheckCircle2},provisioning:{c:'var(--warning)',icon:AlertTriangle},stopped:{c:'var(--danger)',icon:XCircle}};
+    return React.createElement('div',{className:'container',style:{padding:'2rem 1.5rem'}},React.createElement('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'2rem'}},React.createElement('div',null,React.createElement('h1',{style:{fontSize:'1.75rem',fontWeight:800}},'Instances'),React.createElement('p',{style:{color:'var(--text-secondary)',fontSize:'.875rem'}},'Manage all your VPS instances')),React.createElement('div',{style:{display:'flex',gap:'.5rem'}},React.createElement('button',{className:'btn btn-secondary btn-sm'},React.createElement(RefreshCw,{size:14}),' Refresh'),React.createElement('button',{className:'btn btn-primary btn-sm'},'+ Create'))),React.createElement('div',{style:{display:'flex',flexDirection:'column',gap:'1rem'}},instances.map((inst,i)=>{const s=sc[inst.status];return React.createElement('div',{key:i,className:'card',style:{display:'grid',gridTemplateColumns:'1fr auto',gap:'1rem',alignItems:'flex-start'}},React.createElement('div',null,React.createElement('div',{style:{display:'flex',alignItems:'center',gap:'.75rem',marginBottom:'.75rem'}},React.createElement('h3',{style:{fontWeight:700,fontSize:'1.125rem'}},inst.name),React.createElement('span',{className:'badge',style:{background:`${s.c}20`,color:s.c}},React.createElement(s.icon,{size:12}),inst.status),React.createElement('span',{style:{fontSize:'.75rem',color:'var(--text-muted)'}},inst.provider)),React.createElement('div',{style:{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(140px,1fr))',gap:'.75rem',fontSize:'.8125rem'}},React.createElement('div',null,React.createElement('span',{style:{color:'var(--text-muted)'}},'IP: ')),React.createElement('div',null,React.createElement('span',{style:{color:'var(--text-muted)'}},'User: ')),React.createElement('div',null,React.createElement('span',{style:{color:'var(--text-muted)'}},'CPU: ')),React.createElement('div',null,React.createElement('span',{style:{color:'var(--text-muted)'}},'RAM: ')),React.createElement('div',null,React.createElement('span',{style:{color:'var(--text-muted)'}},'Uptime: ')))),React.createElement('div',{style:{display:'flex',gap:'.5rem'}},React.createElement('button',{className:'btn btn-secondary btn-sm',title:'SSH'},React.createElement(Terminal,{size:14})),React.createElement('button',{className:'btn btn-ghost btn-sm',title:'Delete'},React.createElement(Trash2,{size:14,style:{color:'var(--danger)'}}))))}));
+}
+
+// ── SettingsPage ──
+function SettingsPage(){
+    const{theme,toggle}=useTheme();
+    const[show,setShow]=useState(false);
+    return React.createElement('div',{className:'container',style:{padding:'2rem 1.5rem',maxWidth:'48rem'}},React.createElement('div',{style:{marginBottom:'2rem'}},React.createElement('h1',{style:{fontSize:'1.75rem',fontWeight:800}},'Settings'),React.createElement('p',{style:{color:'var(--text-secondary)',fontSize:'.875rem'}},'Configure your system')),
+        React.createElement('div',{className:'card',style:{marginBottom:'1rem'}},React.createElement('h3',{style:{fontWeight:700,marginBottom:'1rem',display:'flex',alignItems:'center',gap:'.5rem'}},React.createElement(Settings,{size:18,style:{color:'var(--accent)'}}),' Appearance'),React.createElement('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center'}},React.createElement('div',null,React.createElement('div',{style:{fontWeight:600}},'Theme'),React.createElement('div',{style:{fontSize:'.8125rem',color:'var(--text-secondary)'}},'Current: ',theme)),React.createElement('button',{className:'btn btn-secondary btn-sm',onClick:toggle},'Switch to '+(theme==='dark'?'Light':'Dark')))),
+        React.createElement('div',{className:'card',style:{marginBottom:'1rem'}},React.createElement('h3',{style:{fontWeight:700,marginBottom:'1rem',display:'flex',alignItems:'center',gap:'.5rem'}},React.createElement(Cpu,{size:18,style:{color:'var(--accent)'}}),' LLM Configuration'),React.createElement('div',{style:{display:'flex',flexDirection:'column',gap:'1rem'}},React.createElement('div',null,React.createElement('label',{style:{display:'block',fontSize:'.8125rem',fontWeight:600,marginBottom:'.375rem'}},'API URL'),React.createElement('input',{className:'input',placeholder:'https://api.openai.com/v1'})),React.createElement('div',null,React.createElement('label',{style:{display:'block',fontSize:'.8125rem',fontWeight:600,marginBottom:'.375rem'}},'API Key'),React.createElement('div',{style:{position:'relative'}},React.createElement('input',{className:'input',type:show?'text':'password',placeholder:'sk-...',style:{paddingRight:'2.5rem'}}),React.createElement('button',{onClick:()=>setShow(!show),style:{position:'absolute',right:'.75rem',top:'50%',transform:'translateY(-50%)',background:'none',border:'none',color:'var(--text-muted)'}},show?React.createElement(EyeOff,{size:16}):React.createElement(Eye,{size:16})))),React.createElement('div',null,React.createElement('label',{style:{display:'block',fontSize:'.8125rem',fontWeight:600,marginBottom:'.375rem'}},'Model'),React.createElement('input',{className:'input',placeholder:'gpt-4'})))),
+        React.createElement('div',{className:'card',style:{marginBottom:'1rem'}},React.createElement('h3',{style:{fontWeight:700,marginBottom:'1rem',display:'flex',alignItems:'center',gap:'.5rem'}},React.createElement(Bell,{size:18,style:{color:'var(--accent)'}}),' Notifications'),React.createElement('div',{style:{display:'flex',flexDirection:'column',gap:'1rem'}},React.createElement('div',null,React.createElement('label',{style:{display:'block',fontSize:'.8125rem',fontWeight:600,marginBottom:'.375rem'}},'Telegram Bot Token'),React.createElement('input',{className:'input',placeholder:'123456:ABC-DEF...'})),React.createElement('div',null,React.createElement('label',{style:{display:'block',fontSize:'.8125rem',fontWeight:600,marginBottom:'.375rem'}},'Discord Webhook'),React.createElement('input',{className:'input',placeholder:'https://discord.com/api/webhooks/...'})))),
+        React.createElement('button',{className:'btn btn-primary',style:{width:'100%'}},React.createElement(Save,{size:16}),' Save Settings')
+    );
+}
+
+// ── DocsPage ──
+function DocsPage(){
+    const sections=[
+        {icon:Terminal,title:'Quick Start',content:'# Clone & install\ngit clone https://github.com/zackyiutu/vps-automation.git\ncd vps-automation && bash scripts/install.sh\n\n# Setup\nabfool-vps setup\n\n# Create VPS\nabfool-vps create flyio my-server'},
+        {icon:Server,title:'Providers',content:'# List providers\nabfool-vps providers\n\n# Create on specific provider\nabfool-vps create flyio my-server\nabfool-vps create codespace my-dev\nabfool-vps create railway my-api\n\n# List all instances\nabfool-vps list all'},
+        {icon:Shield,title:'Monitoring',content:'# Start health monitor\nabfool-vps monitor start\n\n# Manual health scan\nabfool-vps monitor scan\n\n# Auto-heal unhealthy instances\nabfool-vps monitor heal'},
+        {icon:Database,title:'Credential Vault',content:'# Add credentials\nabfool-vps vault add flyio\n\n# List stored credentials\nabfool-vps vault list\n\n# Remove credentials\nabfool-vps vault remove flyio'},
+        {icon:Cpu,title:'LLM Workers',content:'# Configure LLM\nabfool-vps llm setup\n\n# Run AI-powered task\nabfool-vps worker run "deploy nginx on flyio"\n\n# Check LLM status\nabfool-vps llm status'},
+        {icon:Globe,title:'Tunnels',content:'# Quick Cloudflare tunnel\nabfool-vps tunnel quick 8080\n\n# Tailscale VPN\nabfool-vps tunnel tailscale\n\n# SSH tunnel (no install)\nabfool-vps tunnel lhr 8080'},
+    ];
+    return React.createElement('div',{className:'container',style:{padding:'2rem 1.5rem',maxWidth:'48rem'}},React.createElement('div',{style:{marginBottom:'2rem'}},React.createElement('h1',{style:{fontSize:'1.75rem',fontWeight:800}},'Documentation'),React.createElement('p',{style:{color:'var(--text-secondary)',fontSize:'.875rem'}},'Quick reference for all commands')),React.createElement('div',{style:{display:'flex',flexDirection:'column',gap:'1rem'}},sections.map((s,i)=>React.createElement('div',{key:i,className:'card'},React.createElement('h3',{style:{fontWeight:700,marginBottom:'1rem',display:'flex',alignItems:'center',gap:'.5rem'}},React.createElement(s.icon,{size:18,style:{color:'var(--accent)'}}),s.title),React.createElement('pre',{style:{background:'var(--bg)',borderRadius:'var(--radius)',padding:'1rem',fontFamily:'var(--font-mono)',fontSize:'.8125rem',lineHeight:1.8,overflowX:'auto',color:'var(--text-secondary)'}},s.content))))));
+}
+
+// ── Mount ──
+createRoot(document.getElementById('root')).render(React.createElement(ThemeProvider,null,React.createElement(BrowserRouter,null,React.createElement(Layout))));
+    </script>
+</body>
+</html>
